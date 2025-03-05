@@ -1,0 +1,38 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h2>Posts from users that you're following.</h2>
+    
+    {% for post in page_obj %}
+        <div class="border p-3 mb-3">
+            <p><strong><a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a></strong> - {{ post.created_at }}</p>
+            <p>{{ post.content }}</p>
+            <button class="btn btn-sm like-btn" data-post-id="{{ post.id }}">
+                {% if post.user_has_liked %}
+                    <i class="fa fa-heart"></i>
+                {% else %}
+                    <i id="broken" class="fa fa-heart-broken"></i>
+                {% endif %}
+                <span class="like-count">{{ post.liked_by.count }}</span>
+            </button>
+        </div>
+    {% empty %}
+        <p>No posts from users you're following yet.</p>
+    {% endfor %}
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

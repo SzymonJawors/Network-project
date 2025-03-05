@@ -1,0 +1,61 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<div class="mb-4">
+    <h2>Add a new post</h2>
+    <form id="new-post-form" method="post">
+        {% csrf_token %}
+        <textarea name="content" id="post-content" class="form-control" placeholder="Write something..." rows="3"></textarea>
+        <button type="submit" class="btn btn-primary mt-2">Post</button>
+    </form>
+</div>
+
+<h3>All Posts</h3>
+<div id="posts-list">
+    {% for post in page_obj %}
+        <div class="post mb-3" data-post-id="{{ post.id }}">
+            <div class="border p-3">
+                <p><strong><a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a></strong> - {{ post.created_at }}</p>
+                <p id="post-content-{{ post.id }}" class="post-content">{{ post.content }}</p>
+                <form class="edit-form" style="display: none;">
+                    {% csrf_token %}
+                    <textarea class="form-control" name="content">{{ post.content }}</textarea>
+                    <button type="submit" class="btn btn-sm btn-success">Save</button>
+                </form>
+                <button class="btn btn-sm like-btn" data-post-id="{{ post.id }}">
+                    {% if post.user_has_liked %}
+                        <i class="fa fa-heart"></i>
+                    {% else %}
+                        <i id="broken" class="fa fa-heart-broken"></i>
+                    {% endif %}
+                    <span class="like-count">{{ post.liked_by.count }}</span>
+                </button> <br>
+                {% if user == post.user %}
+                <button class="btn btn-sm btn-outline-primary edit-btn" data-post-id="{{ post.id }}">Edit</button>
+                {% endif %}
+            </div>
+        </div>
+    {% empty %}
+        <p>No posts</p>
+    {% endfor %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+<script>
+    let createPostUrl = "{% url 'create_post' %}";
+    let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+</script>
+{% endblock %}
